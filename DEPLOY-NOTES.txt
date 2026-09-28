@@ -1,10 +1,63 @@
-iGlassUS Cloudflare Worker + D1 package
+iGlassUS Cloudflare Auth-ready package
 
-This package converts the static-only deployment into a Worker project.
+This version adds real Cloudflare Worker authentication backed by D1.
 
-After deployment, open:
-https://YOUR-WORKER-URL/api/test-db
+Existing D1 tables used:
+- users
+- vendors
+- sessions
 
-Expected tables: users, vendors, sessions.
+API routes:
+GET  /api/test-db
+POST /api/auth/bootstrap-admin
+POST /api/auth/login
+POST /api/auth/logout
+GET  /api/auth/me
+GET  /api/admin/vendors        (admin only)
+POST /api/admin/vendors        (admin only)
 
-Do not put real admin/vendor passwords into index.html.
+SECURITY:
+- Passwords are PBKDF2-SHA256 hashed with a per-user random salt.
+- Session tokens are random and only their SHA-256 hashes are stored in D1.
+- The browser receives an HttpOnly, Secure, SameSite=Lax session cookie.
+- Never put real passwords in public/index.html or localStorage.
+
+REQUIRED BEFORE CREATING FIRST ADMIN:
+In Cloudflare > Workers & Pages > iglassus > Settings > Variables and Secrets,
+create a secret named:
+
+ADMIN_SETUP_KEY
+
+Give it a long random value (do not put the value in GitHub).
+
+Then POST to /api/auth/bootstrap-admin with header:
+X-Setup-Key: <your secret>
+
+and JSON body:
+{
+  "username": "your-admin-username",
+  "email": "your-email@example.com",
+  "password": "a-long-password-at-least-12-characters"
+}
+
+The bootstrap endpoint stops working after the first admin account exists.
+
+After the first admin exists, use:
+POST /api/auth/login
+{
+  "login": "username-or-email",
+  "password": "..."
+}
+
+Admin can create vendors with:
+POST /api/admin/vendors
+{
+  "company_name": "Example Optical Lab",
+  "username": "vendorname",
+  "email": "vendor@example.com",
+  "password": "temporary-password-at-least-12-characters",
+  "country": "Bangladesh",
+  "phone": "",
+  "currency": "BDT",
+  "status": "active"
+}
