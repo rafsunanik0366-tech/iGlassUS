@@ -1,37 +1,38 @@
-iGlassUS Cloudflare Auth + Secrets Store package
+iGlassUS Cloudflare Full Package
 
-This version includes:
+Includes:
+- public/index.html
+- public/assets/
+- src/index.js
+- wrangler.jsonc
 - D1 binding: DB -> iglass-production
 - Static assets binding: ASSETS
-- Secrets Store binding:
-    ADMIN_SETUP_KEY
-    Store ID: 29529621cfef4e34bbb8034920399e0e
-    Secret name: ADMIN_SETUP_KEY
-
-The secret VALUE is NOT stored in this project or GitHub.
+- Secrets Store binding: ADMIN_SETUP_KEY
+- Auth API
+- Admin setup page
 
 After uploading these files to GitHub and Cloudflare redeploys:
-1. Confirm deployment log shows:
-   env.DB
-   env.ASSETS
-   env.ADMIN_SETUP_KEY
-2. /api/test-db should still return users/vendors/sessions.
-3. Then create the first admin through POST /api/auth/bootstrap-admin
-   using header:
-      X-Setup-Key: <your private ADMIN_SETUP_KEY value>
-   and JSON body:
-      {
-        "username": "your-admin-username",
-        "email": "your-email@example.com",
-        "password": "at-least-12-characters"
-      }
 
-Do not put the ADMIN_SETUP_KEY value, admin password, or vendor passwords in GitHub or public/index.html.
+1. Test database:
+   https://iglassus.rafsunanik0633.workers.dev/api/test-db
 
+2. Test auth:
+   https://iglassus.rafsunanik0633.workers.dev/api/auth/me
+   Expected before login:
+   {"ok":false,"error":"Not authenticated."}
 
-EASIER FIRST-ADMIN SETUP:
-After deployment, open:
-  https://iglassus.rafsunanik0633.workers.dev/admin-setup
+3. Create the first Admin:
+   https://iglassus.rafsunanik0633.workers.dev/admin-setup
 
-Enter your own username, email, password (12+ chars), and the private ADMIN_SETUP_KEY.
-The setup page automatically disables itself after the first admin exists.
+4. Enter:
+   - Admin username
+   - Email
+   - Password (12+ characters)
+   - Your private ADMIN_SETUP_KEY
+
+The Admin setup page disables itself after the first Admin account exists.
+
+SECURITY:
+- Do not put passwords or ADMIN_SETUP_KEY in GitHub.
+- Passwords are hashed before storage in D1.
+- Sessions use HttpOnly Secure cookies.

@@ -22,11 +22,20 @@ export default {
       }
 
       if (url.pathname === "/admin-setup" && request.method === "GET") {
-        const existing = await env.DB.prepare("SELECT id FROM users WHERE role = 'admin' LIMIT 1").first();
+        const existing = await env.DB
+          .prepare("SELECT id FROM users WHERE role = 'admin' LIMIT 1")
+          .first();
+
         if (existing) {
-          return new Response("<!doctype html><meta charset='utf-8'><title>Admin already created</title><body style='font-family:system-ui;padding:40px'><h2>Admin account already exists.</h2><p>This setup page is disabled.</p></body>", {
-            headers: {"content-type":"text/html; charset=utf-8","cache-control":"no-store"}
-          });
+          return new Response(
+            "<!doctype html><meta charset='utf-8'><title>Admin already created</title><body style='font-family:system-ui;padding:40px'><h2>Admin account already exists.</h2><p>This setup page is disabled.</p></body>",
+            {
+              headers: {
+                "content-type": "text/html; charset=utf-8",
+                "cache-control": "no-store"
+              }
+            }
+          );
         }
 
         return new Response(`<!doctype html>
@@ -50,45 +59,65 @@ button{width:100%;margin-top:18px;padding:12px;border:0;border-radius:10px;backg
 <div class="card">
   <h1>Create iGlassUS Admin</h1>
   <p class="muted">This page works only until the first Admin account is created.</p>
+
   <label>Admin username</label>
   <input id="username" autocomplete="username">
+
   <label>Email</label>
   <input id="email" type="email" autocomplete="email">
+
   <label>Password</label>
   <input id="password" type="password" autocomplete="new-password">
+
   <label>ADMIN_SETUP_KEY</label>
   <input id="setupKey" type="password" autocomplete="off">
+
   <button id="createBtn">Create Admin Account</button>
   <div id="msg"></div>
 </div>
+
 <script>
-document.getElementById("createBtn").onclick=async()=>{
-  const msg=document.getElementById("msg");
-  msg.className=""; msg.style.display="none";
-  const r=await fetch("/api/auth/bootstrap-admin",{
-    method:"POST",
-    headers:{
-      "content-type":"application/json",
-      "x-setup-key":document.getElementById("setupKey").value
+document.getElementById("createBtn").onclick = async () => {
+  const msg = document.getElementById("msg");
+  msg.className = "";
+  msg.style.display = "none";
+
+  const r = await fetch("/api/auth/bootstrap-admin", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-setup-key": document.getElementById("setupKey").value
     },
-    body:JSON.stringify({
-      username:document.getElementById("username").value,
-      email:document.getElementById("email").value,
-      password:document.getElementById("password").value
+    body: JSON.stringify({
+      username: document.getElementById("username").value,
+      email: document.getElementById("email").value,
+      password: document.getElementById("password").value
     })
   });
-  const data=await r.json().catch(()=>({ok:false,error:"Invalid server response"}));
-  msg.textContent=data.ok ? "Admin account created successfully." : (data.error||"Setup failed.");
-  msg.className=data.ok?"ok":"bad";
-  if(data.ok){
-    document.getElementById("setupKey").value="";
-    document.getElementById("password").value="";
+
+  const data = await r.json().catch(() => ({
+    ok: false,
+    error: "Invalid server response"
+  }));
+
+  msg.textContent = data.ok
+    ? "Admin account created successfully."
+    : (data.error || "Setup failed.");
+
+  msg.className = data.ok ? "ok" : "bad";
+
+  if (data.ok) {
+    document.getElementById("setupKey").value = "";
+    document.getElementById("password").value = "";
   }
 };
 </script>
 </body>
 </html>`, {
-          headers: {"content-type":"text/html; charset=utf-8","cache-control":"no-store"}
+          headers: {
+            "content-type": "text/html; charset=utf-8",
+            "cache-control": "no-store"
+          }
         });
       }
 
