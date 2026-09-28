@@ -65,15 +65,23 @@ export default {
 };
 
 async function bootstrapAdmin(request, env) {
-  if (!env.ADMIN_SETUP_KEY) {
+  if (!env.ADMIN_SETUP_KEY || typeof env.ADMIN_SETUP_KEY.get !== "function") {
     return json(
-      { ok: false, error: "ADMIN_SETUP_KEY secret is not configured in Cloudflare." },
+      { ok: false, error: "ADMIN_SETUP_KEY Secrets Store binding is not configured in Cloudflare." },
+      500
+    );
+  }
+
+  const setupKey = await env.ADMIN_SETUP_KEY.get();
+  if (!setupKey) {
+    return json(
+      { ok: false, error: "ADMIN_SETUP_KEY could not be read from Cloudflare Secrets Store." },
       500
     );
   }
 
   const suppliedKey = request.headers.get("x-setup-key") || "";
-  if (!safeEqualText(suppliedKey, env.ADMIN_SETUP_KEY)) {
+  if (!safeEqualText(suppliedKey, setupKey)) {
     return json({ ok: false, error: "Invalid setup key." }, 403);
   }
 

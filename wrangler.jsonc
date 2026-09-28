@@ -12,5 +12,12 @@
       "database_name": "iglass-production",
       "database_id": "91c29640-9403-46af-ac58-879f252b7448"
     }
+  ],
+  "secrets_store_secrets": [
+    {
+      "binding": "ADMIN_SETUP_KEY",
+      "store_id": "29529621cfef4e34bbb8034920399e0e",
+      "secret_name": "ADMIN_SETUP_KEY"
+    }
   ]
 }
