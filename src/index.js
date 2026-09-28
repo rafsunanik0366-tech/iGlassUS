@@ -21,6 +21,74 @@ export default {
         });
       }
 
+      if (url.pathname === "/admin-setup" && request.method === "GET") {
+        const existing = await env.DB.prepare("SELECT id FROM users WHERE role = 'admin' LIMIT 1").first();
+
+        if (existing) {
+          return new Response("<!doctype html><meta charset='utf-8'><title>Admin already created</title><body style='font-family:system-ui;padding:40px'><h2>Admin account already exists.</h2><p>This setup page is disabled.</p></body>", {
+            headers: {
+              "content-type": "text/html; charset=utf-8",
+              "cache-control": "no-store"
+            }
+          });
+        }
+
+        return new Response(`<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>iGlassUS Admin Setup</title>
+<style>
+body{font-family:system-ui;background:#f5f7fb;margin:0;padding:32px;color:#0b1736}
+.card{max-width:520px;margin:40px auto;background:#fff;border:1px solid #dfe5ee;border-radius:18px;padding:24px;box-shadow:0 10px 35px rgba(0,0,0,.06)}
+h1{margin-top:0}.muted{color:#6b7280;font-size:14px}
+label{display:block;font-weight:700;margin:14px 0 6px}
+input{width:100%;box-sizing:border-box;padding:12px;border:1px solid #ccd5e1;border-radius:10px}
+button{width:100%;margin-top:18px;padding:12px;border:0;border-radius:10px;background:#071331;color:#fff;font-weight:800;cursor:pointer}
+#msg{margin-top:14px;padding:10px;border-radius:10px;display:none}
+.ok{display:block!important;background:#eaf8ef;color:#167d50}.bad{display:block!important;background:#fff1f2;color:#b42346}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>Create iGlassUS Admin</h1>
+<p class="muted">This page works only until the first Admin account is created.</p>
+<label>Admin username</label><input id="username" autocomplete="username">
+<label>Email</label><input id="email" type="email" autocomplete="email">
+<label>Password</label><input id="password" type="password" autocomplete="new-password">
+<label>ADMIN_SETUP_KEY</label><input id="setupKey" type="password" autocomplete="off">
+<button id="createBtn">Create Admin Account</button>
+<div id="msg"></div>
+</div>
+<script>
+document.getElementById("createBtn").onclick=async()=>{
+ const msg=document.getElementById("msg");
+ msg.className=""; msg.style.display="none";
+ const r=await fetch("/api/auth/bootstrap-admin",{
+   method:"POST",
+   headers:{"content-type":"application/json","x-setup-key":document.getElementById("setupKey").value},
+   body:JSON.stringify({
+     username:document.getElementById("username").value,
+     email:document.getElementById("email").value,
+     password:document.getElementById("password").value
+   })
+ });
+ const data=await r.json().catch(()=>({ok:false,error:"Invalid server response"}));
+ msg.textContent=data.ok?"Admin account created successfully.":(data.error||"Setup failed.");
+ msg.className=data.ok?"ok":"bad";
+ if(data.ok){document.getElementById("setupKey").value="";document.getElementById("password").value="";}
+};
+</script>
+</body>
+</html>`, {
+          headers: {
+            "content-type": "text/html; charset=utf-8",
+            "cache-control": "no-store"
+          }
+        });
+      }
+
       if (url.pathname === "/api/auth/bootstrap-admin" && request.method === "POST") {
         return bootstrapAdmin(request, env);
       }
