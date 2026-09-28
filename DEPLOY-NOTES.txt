@@ -27,3 +27,11 @@ After uploading these files to GitHub and Cloudflare redeploys:
       }
 
 Do not put the ADMIN_SETUP_KEY value, admin password, or vendor passwords in GitHub or public/index.html.
+
+
+EASIER FIRST-ADMIN SETUP:
+After deployment, open:
+  https://iglassus.rafsunanik0633.workers.dev/admin-setup
+
+Enter your own username, email, password (12+ chars), and the private ADMIN_SETUP_KEY.
+The setup page automatically disables itself after the first admin exists.
