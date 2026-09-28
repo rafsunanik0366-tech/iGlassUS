@@ -1,0 +1,10 @@
+iGlassUS Cloudflare Worker + D1 package
+
+This package converts the static-only deployment into a Worker project.
+
+After deployment, open:
+https://YOUR-WORKER-URL/api/test-db
+
+Expected tables: users, vendors, sessions.
+
+Do not put real admin/vendor passwords into index.html.

@@ -1,7 +1,16 @@
 {
-  "name": "iglass-order-flow",
-  "compatibility_date": "2026-09-01",
+  "name": "iglassus",
+  "main": "src/index.js",
+  "compatibility_date": "2026-09-28",
   "assets": {
-    "directory": "./public"
-  }
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "iglass-production",
+      "database_id": "91c29640-9403-46af-ac58-879f252b7448"
+    }
+  ]
 }
